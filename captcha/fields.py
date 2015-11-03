@@ -68,7 +68,8 @@ class ReCaptchaField(forms.CharField):
             check_captcha = client.submit(
                 recaptcha_challenge_value,
                 recaptcha_response_value, private_key=self.private_key,
-                remoteip=self.get_remote_ip(), use_ssl=self.use_ssl)
+                remoteip=self.get_remote_ip(), use_ssl=self.use_ssl,
+                use_nocaptcha=self.widget.is_nocaptcha())
             
         except socket.error: # Catch timeouts, etc
             raise ValidationError(

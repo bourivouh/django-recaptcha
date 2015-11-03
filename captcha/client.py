@@ -75,7 +75,8 @@ def submit(recaptcha_challenge_field,
            recaptcha_response_field,
            private_key,
            remoteip,
-           use_ssl=False):
+           use_ssl=False,
+           use_nocaptcha=getattr(settings, "NOCAPTCHA", False)):
     """
     Submits a reCAPTCHA request for verification. Returns RecaptchaResponse
     for the request
@@ -95,7 +96,7 @@ def submit(recaptcha_challenge_field,
             error_code='incorrect-captcha-sol'
         )
 
-    if getattr(settings, "NOCAPTCHA", False):
+    if use_nocaptcha:
         params = urlencode({
             'secret': want_bytes(private_key), 
             'response': want_bytes(recaptcha_response_field), 
@@ -117,7 +118,7 @@ def submit(recaptcha_challenge_field,
     else:
         verify_url = 'http://%s/recaptcha/api/verify' % VERIFY_SERVER
 
-    if getattr(settings, "NOCAPTCHA", False):
+    if use_nocaptcha:
         verify_url = 'https://%s/recaptcha/api/siteverify' % VERIFY_SERVER
 
     req = Request(
@@ -130,7 +131,7 @@ def submit(recaptcha_challenge_field,
     )
 
     httpresp = urlopen(req)
-    if getattr(settings, "NOCAPTCHA", False):
+    if use_nocaptcha:
         data = json.loads(httpresp.read().decode('utf-8'))
         return_code = data['success']
         return_values = [return_code, None]
@@ -144,7 +145,7 @@ def submit(recaptcha_challenge_field,
 
     httpresp.close()
 
-    if (return_code == "true"):
+    if return_code == "true":
         return RecaptchaResponse(is_valid=True)
     else:
         return RecaptchaResponse(is_valid=False, error_code=return_values[1])
