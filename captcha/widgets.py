@@ -42,5 +42,6 @@ class ReCaptcha(forms.widgets.Widget):
         if not hasattr(self, "_is_nocaptcha"):
             if data:
                 self._is_nocaptcha = self.nocaptcha_response_name in data
-            self._is_nocaptcha = getattr(settings, "NOCAPTCHA", False)
+            else:
+                self._is_nocaptcha = getattr(settings, "NOCAPTCHA", False)
         return self._is_nocaptcha
